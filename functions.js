@@ -1,5 +1,6 @@
 var postcss = require('postcss');
-var DataURI = require('datauri');
+var buffer = require('buffer');
+var Buffer = buffer.Buffer;
 
 var functions = {
     getFontPreset: function (localOptions, name) {
@@ -215,12 +216,10 @@ var functions = {
 
             var svg = svgStart + svgMiddle + svgEnd;
 
-            var datauri = new DataURI();
-            datauri.format('.svg', svg);
-
+            var base64String = new Buffer(svg).toString('base64');
             declaration.remove();
 
-            rule.insertAfter(declaration, postcss.parse('background-image:  url("' + datauri.content + '")'));
+            rule.insertAfter(declaration, postcss.parse('background-image:  url("data:image/svg+xml;base64,' + base64String + '")'));
         }
     },
 
@@ -239,7 +238,7 @@ var functions = {
             }
         });
     },
-    
+
     searchCache: function (moduleName, callback) {
         // Resolve the module identified by the specified name
         var mod = require.resolve(moduleName);
